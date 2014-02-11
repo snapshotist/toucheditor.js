@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+
+<body>
+
+    <dl>
+        <dt>Supported</dt>
+        <dd>
+            <p>Single-level elements without attributes and the anchor tag with href attribute are supported.</p>
+
+            <ul>
+                <li>&lt;a&gt;</li>
+                <li>&lt;em&gt;</li>
+                <li>&lt;strong&gt;</li>
+                <li>&lt;a&gt;</li>
+            </ul>
+        </dd>
+    </dl>
+
+    <hr>
+    <div class="linkify-1">
+        <div>
+            <p>
+                <a href="#">
+                    <strong>Foo</strong>
+                    <br>
+                </a>
+            </p>
+
+            <hr>
+
+            <p>
+                <strike>Bar</strike>
+            </p>
+        </div>
+    </div>
+    
+    <div class="linkify-2">
+        <a href="#">
+            <p>
+                <strong>Foo</strong>
+            </p>
+        </a>
+
+        <strike>
+            <p>Bar</p>
+        </strike>
+    </div>
+
+    <div class="linkify-3">
+        <p>
+            <a href="#">
+                <strong>Foo</strong>
+            </a>
+
+            <strike>Bar</strike>
+        </p>
+    </div>
+    
+    <hr>
+    <div id="result"></div>
+
+    <script type="text/javascript" src="jquery_1.10.1.js"></script>
+    <script type="text/javascript" src="dom_writer.js"></script>
+    <script type="text/javascript">
+    $(function() {
+
+
+        DOMWriter.parseHTML( $(".linkify-1"), {
+            "idNodes": true
+        });
+        console.log("------");
+
+
+        // DOMWriter.parseHTML( $(".linkify-2"), {
+        //     "idNodes": true
+        // });
+        // console.log("------");
+
+        // DOMWriter.parseHTML( $(".linkify-3"), {
+        //     "idNodes": true
+        // });
+        // console.log("------");
+
+        var result = DOMWriter.writeHTML();
+        console.log( result );
+        $("#result").html( result );
+/*
+        console.log( JSON.stringify(DOMWriter.domJSON).replace(/,/g, ",\n") );
+
+        DOMWriter.addTag(0, "a", {
+            "href": "http://www.ryangillespie.com"
+        });
+        // DOMWriter.removeTag(0, "a");
+        
+        DOMWriter.addNode(0, 20);
+        DOMWriter.addNode(0, 1);
+
+        console.log( JSON.stringify(DOMWriter.domJSON).replace(/,/g, ",\n") );
+        // console.log(DOMWriter.writeHTML())
+        $("#result").html( DOMWriter.writeHTML() );
+        */
+    });
+    </script>
+
+</body>
+</html>
