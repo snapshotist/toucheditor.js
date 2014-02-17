@@ -10,39 +10,156 @@
  *
  * Dependencies: JQuery 1.10+, DOMWriter 0.1+
  *
+ * Options:
+ *      noToolbarFollow : boolean
+ *
 */
 var TouchEditor = (function(){
 
-    function init() {
+    // Change the HTML in editorToolsHTML below to remove specific buttons
+    var editorToolsHTML = '<div class="touch-edit-toolbar"><button class="touch-edit-button touch-edit-link" data-tag="a">Link</button><button class="touch-edit-button touch-edit-bold" data-tag="strong">Bold</button><button class="touch-edit-button touch-edit-underline" data-tag="u">Underline</button><button class="touch-edit-button touch-edit-italic" data-tag="em">Italic</button><button class="touch-edit-button touch-edit-strike" data-tag="strike">Strike</button><button class="touch-edit-button touch-edit-help" style="display: none;">Help</button></div>';
+    
+    var editorApplyHTML = '<ul class="touch-edit-top-nav" style="display: none;"><li class="list-urls"><button><span class="down-arrow"></span></button><select></select></li><li class="url"><span class="touch-edit-label"></span><input type="text" autocorrect="off" autocapitalize="off" placeholder="Type the link address"></li><li class="apply"><button>Apply</button></li><li class="close"><button>Cancel</button></li></ul>';
+    
+    var editorHTML = '<div class="touch-edit"></div>';
+    var $text;
+
+    function init(target, options) {
+
+        var $formInput;
+        if (typeof target == "string") {
+            $formInput = $(target);
+        } else {
+            $formInput = target;
+        }
+        var scrollInterval;
+
+        if (!$formInput.length) {
+            console.error("Target not found: " + target);
+            return;
+        } else {
+            $(editorHTML).insertAfter($formInput);
+            $text = $(".touch-edit");
+        }
+
+        if (typeof options === "undefined") {
+            options = {};
+        }
+
+        $text.attr("contenteditable", "true");
+        editorToolsHTML = $(editorToolsHTML).insertBefore($text);
+
+        $(editorApplyHTML).appendTo("body");
+
+        $formInput
+            .css("opacity", 0)
+            .css("width", "1px")
+            .css("height", "1px")
+            .css("margin", "0")
+            .appendTo(editorToolsHTML);
+
+        function stopToolbarScroll() {
+            clearInterval(scrollInterval);
+        }
+
+        function startToolbarScroll() {
+            var editorTop = $text.offset().top;
+            var editorTopRel = $text.position().top;
+            var toolsHeight = editorToolsHTML.height();
+            var fixed = false;
+
+            scrollInterval = setInterval(function() {
+                var scrollTop = $(window).scrollTop();
+                var editorHeight = $text.height();
+
+                if (editorHeight > toolsHeight) {
+
+                    if (scrollTop >= editorTop) {
+
+                        var editorBottom = (editorTop + editorHeight) - toolsHeight;
+                        if (scrollTop >= editorBottom) {
+                            if (!fixed) {
+                                var toolsAbsPos = (editorTopRel + editorHeight) - toolsHeight + 20;
+                                fixed = true;
+
+                                editorToolsHTML
+                                    .removeClass("scroll")
+                                    .addClass("scroll-end")
+                                    .css("top", toolsAbsPos + "px");
+                            }
+                        } else {
+                            fixed = false;
+                            editorToolsHTML
+                                .css("top", "")
+                                .removeClass("scroll-end")
+                                .addClass("scroll");
+                        }
+
+                    } else if (scrollTop < editorTop) {
+                        editorToolsHTML.removeClass("scroll");
+                        editorToolsHTML.removeClass("scroll-end");
+                    } else {
+                        editorToolsHTML.removeClass("scroll");
+                    }
+                }
+            }, 250);
+        }
+
+        if (!options["noToolbarFollow"]) {
+            editorToolsHTML.parent().css("position", "relative");
+            startToolbarScroll();
+        }
+
+        // Force P tag on Chrome when hitting enter - default is DIV
+        $text.get(0).addEventListener('keypress', function(ev){
+            if(ev.keyCode == '13')
+                document.execCommand('formatBlock', false, 'p');
+        }, false);
 
         var originalHTML;
-        var pointers = [];
-        var lastPointer = 0;
 
-        var $text = $(".linkify");
         var selectedNodes = [];
-        var selectedNodesPointer = [];
         var selectedHref = "";
         var tagMode = {};
 
+        // disable links - iOS Safari
+        $text.find("a").on("click", function(e) {
+            e.preventDefault();
+        });
+
+        function resetTools() {
+            editorToolsHTML.find(":not(.touch-edit-help)").show();
+            editorToolsHTML.find(".touch-edit-help").hide();
+
+            // reset input controls
+            $(".list-urls").find("option[value='']").attr("selected", "selected");
+            $(".url input").val("");
+        }
+
         function enableNav() {
 
-            $(".top-nav").show();
+            editorToolsHTML.find(":not(.touch-edit-help)").hide();
+            editorToolsHTML.find(".touch-edit-help").show();
+
+            $(".touch-edit-top-nav").show();
             $text.attr("contenteditable", "false");
 
             $(".close").on("click", function(e) {
+                e.preventDefault();
                 $text.html( originalHTML );
                 removeHandlers();
+                resetTools();
             });
 
             $(".apply").on("click", function(e) {
+                e.preventDefault();
 
                 var updatedLinks = false;
 
                 if (tagMode.name == "a") {
                     var hrefInput = $(".url").find("input").val().replace(" ", "");
                     if (hrefInput.length == 0) {
-                        alert("Link address cannot be empty.")
+                        alert("You must type a link address at the top.");
                         return;
                     } else {
                         tagMode["attributes"]["href"] = hrefInput;
@@ -66,16 +183,29 @@ var TouchEditor = (function(){
 
                 var affectedNodes = findNodes(tagMode.name, tagMode.attributes);
 
+                if (!updatedLinks && affectedNodes == 0) {
+                    var msg = "You must tap on a word to apply ";
+                    if (tagMode.name == "a") {
+                        msg += "the link.";
+                    } else {
+                        msg += "the style."
+                    }
+                    alert(msg);
+                    return;
+                }
+
                 removeHandlers();
                 if (updatedLinks || affectedNodes) {
                     $text.html( DOMWriter.writeHTML() );
+                    // disable links - iOS Safari
+                    $text.find("a").on("click", function(e) {
+                        e.preventDefault();
+                    });
                 } else {
                     $text.html( originalHTML );
                 }
 
-                // reset input controls
-                $(".list-urls").find("option[value='']").attr("selected", "selected");
-                $(".url input").val("");
+                resetTools();
             });
 
             if (tagMode["name"] == "a") {
@@ -88,7 +218,6 @@ var TouchEditor = (function(){
                     .on("change", function() {
                         var hrefLookup = $(this).find("option:selected").val();
                         $(".url input").val(hrefLookup);
-                        clearPointers();
                         activateLinks(hrefLookup);
                         selectedHref = hrefLookup;
                     });
@@ -149,7 +278,7 @@ var TouchEditor = (function(){
         function disableNav() {
             $(".close").off("click");
             $(".apply").off("click");
-            $(".top-nav").hide();
+            $(".touch-edit-top-nav").hide();
 
             $text.attr("contenteditable", "true");
         }
@@ -196,12 +325,13 @@ var TouchEditor = (function(){
             });
 
             enableNav();
-            clearPointers();
             wrapTextNodes($text.find('*'));
 
             // highlight text nodes with this chosen tag
             if (tagMode.name != "a") {
                 selectTags(tagMode.name);
+                
+                $(".touch-edit-label").text("Style: " + tagMode["label"]);
 
             } else {
                 $(".list-urls").find("select").html('<option value="">Add a New Address</option>');
@@ -214,7 +344,7 @@ var TouchEditor = (function(){
                         var $spans = $(this).find('span:not(:empty)');
                         var href = $(this).attr("href");
                         $spans.each(function() {
-                            $.data( this, "href", href);
+                            $.data(this, "href", href);
                         });
 
                         if ($.inArray(href, uniqueHref) == -1) {
@@ -232,8 +362,28 @@ var TouchEditor = (function(){
             $text.addClass("enabled");
         }
 
-        $(".linkify-button").on("click", function(e) {
+        $(".touch-edit-button").on("click", function(e) {
             e.preventDefault();
+
+            if( $text.text().length == 0) {
+                alert("You must type something before you can apply links and styles.");
+                return;
+            }
+
+            if ($(this).hasClass("touch-edit-help")) {
+
+                var msg;
+                if (tagMode["name"] == "a") {
+                    msg = "Touch a word to apply the link. Touch again to remove.\nType the link address in the text box above or choose from the drop-down button.";
+                } else {
+                    msg = "Touch a word to apply the style. Touch again to remove.";
+                }
+
+                msg += "\n\nClick Apply at the top right when done.";
+                alert(msg);
+
+                return;
+            }
 
             tagMode["name"] = $(this).data("tag");
             if (tagMode["name"] == "a") {
@@ -241,6 +391,7 @@ var TouchEditor = (function(){
                     "href": ""
                 };
             } else {
+                tagMode["label"] = $(this).text();
                 tagMode["attributes"] = {};
             }
 
@@ -284,7 +435,6 @@ var TouchEditor = (function(){
 
             });
 
-
             var nodeCount = 0;
             $text.find(".click").each(function(index) {
 
@@ -321,111 +471,9 @@ var TouchEditor = (function(){
                         }
                     }
 
-                    lastPointer = pointers[pointers.length - 1];
-                    if (lastPointer === undefined)
-                        lastPointer = 0;
-                    var nextPointer;
-
-                    var thisId = parseInt($(this).attr("id").substr(1));
-                    var prevNode = $("#i" + (thisId - 1));
-                    var nextNode = $("#i" + (thisId + 1));
-
-                    var prevNodeClass;
-                    var nextNodeClass;
-                    if (prevNode.length)
-                        prevNodeClass = prevNode.attr("class").match(/[0-9]+/g);
-                    if (nextNode.length)
-                        nextNodeClass = nextNode.attr("class").match(/[0-9]+/g);
-
-                    if (prevNodeClass)
-                        if (nextNodeClass)
-                            if (prevNodeClass < nextNodeClass)
-                                nextPointer = prevNodeClass;
-                            else
-                                nextPointer = nextNodeClass;
-                        else
-                            nextPointer = prevNodeClass;
-                    else if (nextNodeClass)
-                        nextPointer = nextNodeClass;
-
-                    if (selectionAdded) {
-
-                        if (prevNodeClass) {
-                            if (nextNodeClass) {
-                                $(this).addClass("linkify-" + prevNodeClass);
-
-                                var nextNodeCounter = thisId + 1;
-                                var inspectNode = $("#i" + (nextNodeCounter++));
-
-                                while(inspectNode.hasClass("linkify-" + nextNodeClass)) {
-                                    inspectNode.removeClass("linkify-" + nextNodeClass);
-                                    removePointer(nextNodeClass);
-                                    inspectNode.addClass("linkify-" + prevNodeClass);
-
-                                    inspectNode = $("#i" + (nextNodeCounter++));
-                                }
-
-                            } else {
-                                $(this).addClass("linkify-" + prevNodeClass);
-                            }
-                        } else if (nextNodeClass) {
-                            $(this).addClass("linkify-" + nextNodeClass);
-                        } else {
-                            nextPointer = addPointer();
-                            $(this).addClass("linkify-" + nextPointer);
-                        }
-
-
-                    } else {
-                        var thisClass = $(this).attr("class").match(/[0-9]+/g);
-                        $(this).removeClass("linkify-" + thisClass);
-
-                        if (prevNodeClass) {
-                            if (nextNodeClass) {
-                                var newNextNodeClass = addPointer();
-
-                                var nextNodeCounter = thisId + 1;
-                                var inspectNode = $("#i" + (nextNodeCounter++));
-
-                                while(inspectNode.hasClass("linkify-" + nextNodeClass)) {
-                                    inspectNode.removeClass("linkify-" + nextNodeClass);
-                                    inspectNode.addClass("linkify-" + newNextNodeClass);
-
-                                    inspectNode = $("#i" + (nextNodeCounter++));
-                                }
-
-                            }
-                        } else if (!nextNodeClass) {
-                            removePointer(thisClass);
-                        }
-                    }
-
                 }); // on "click"
 
             }); // find .click
-    
-        }
-
-        function addPointer() {
-            var newPointer = lastPointer + 1;
-            pointers[pointers.length] = newPointer;
-            return newPointer;
-        }
-
-        function removePointer(removeVal) {
-            pointers = jQuery.grep(pointers, function(value) {
-                return value != removeVal;
-            });
-        }
-
-        function clearPointers() {
-            if (pointers.length) {
-                for (var i = pointers.length; i-- > 0;) {
-                    $text.find(".linkify-" + pointers[i]).removeClass("selected linkify-" + pointers[i]);
-                }
-            }
-            pointers = [];
-            lastPointer = 0;
         }
 
         function removeHandlers() {
@@ -437,10 +485,23 @@ var TouchEditor = (function(){
 
             disableNav();
         }
+
+    }
+
+    function getJSON(stringify) {
+        var jsonResult = DOMWriter.parseHTML($text);
+        if (stringify) jsonResult = JSON.stringify(jsonResult);
+        return jsonResult;
+    }
+
+    function getHTML() {
+        return $text.html();
     }
 
     return {
-        init: init
+        init: init,
+        getJSON: getJSON,
+        getHTML: getHTML
     };
 
 })();

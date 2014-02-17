@@ -1,0 +1,128 @@
+.touch-edit {
+    min-height: 190px;
+    margin-right: 50px;
+    padding: 12px;
+    border: 3px solid #8e8e8e;
+}
+.touch-edit.enabled {
+    font-size: 30px;
+    color: #000;
+}
+.touch-edit-top-nav .list-urls {
+    height: 21px;
+    width: 34px;
+}
+.touch-edit-top-nav button {
+    height: 28px;
+}
+.touch-edit-top-nav select {
+    position: absolute;
+    opacity: .1;
+    left: 0;
+    top: 0;
+    height: 35px;
+    width: 29px;
+    -webkit-appearance: none;
+}
+.touch-edit-top-nav .url input {
+    width: 98%;
+    font-size: 1em;
+    margin: 0;
+    padding: 3px;
+    border: 0;
+    background-color: #fff;
+}
+.touch-edit-top-nav .apply {
+    width: 55px;
+}
+.touch-edit-top-nav .close {
+    width: 55px;
+}
+
+.touch-edit-top-nav .down-arrow {
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 10px solid #333;
+}
+
+.touch-edit-top-nav {
+    font-family: sans-serif;
+    display: table;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 38px;
+    background-color: rgba(204, 204, 204, 0.65);
+}
+.touch-edit-top-nav li {
+    display: table-cell;
+    vertical-align: middle;
+}
+.touch-edit-top-nav:after {
+    content: " ";
+    display: table;
+    clear: both;
+}
+.touch-edit .click {
+    padding: 4px;
+    border: 1px solid transparent;
+    display: inline-block;
+    line-height: 34px;
+    padding: 4px;
+}
+.touch-edit .click.selected {
+    color: #fc0;
+    border: 1px solid #fc0;
+    background-color: #fafafa;
+}
+.touch-edit-toolbar {
+    float: right;
+    height: 190px;
+}
+.touch-edit-toolbar.scroll {
+    position: fixed;
+    top: 10px;
+    right: 30px;
+}
+.touch-edit-toolbar.scroll-end {
+    position: absolute;
+    right: 0;
+}
+.touch-edit-button {
+    display: block;
+    border: 0;
+    background: transparent url(touch-edit-icons.png) no-repeat;
+    width: 35px;
+    height: 35px;
+    overflow: hidden;
+    text-indent: -999em;
+    margin-bottom: 3px;
+}
+.touch-edit-button:hover {
+    cursor: pointer;
+}
+.touch-edit-bold {
+    background-position: 0 -40px;
+}
+.touch-edit-underline {
+    background-position: 0 -80px;
+}
+.touch-edit-italic {
+    background-position: 0 -120px;
+}
+.touch-edit-strike {
+    background-position: 0 -160px;
+}
+.touch-edit-help {
+    background-position: 0 -200px;
+    margin-top: 50px;
+}
+.touch-edit-label {
+    position: absolute;
+    right: 125px;
+    top: 11px;
+    z-index: -10;
+}

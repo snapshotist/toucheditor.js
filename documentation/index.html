@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Title</title>
+    <style type="text/css">
+    body {
+        font-family: sans-serif;
+    }
+    *, *:before, *:after {
+        -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+    }
+    strong { font-weight: bold; }
+    em { font-style: italic; }
+
+    h1 { font-size: 200%; }
+    h2 {
+        font-size: 120%;
+        margin-top: 2.5em;
+        background-color: #eee;
+        padding: 8px;
+    }
+    h3 {
+        font-size: 100%;
+        margin-top: 2.5em;
+    }
+    p, li { font-size: 90%; }
+    
+    .body {
+        max-width: 700px;
+    }
+    .footer {
+        margin-bottom: 120px;
+    }
+    
+    ul li {
+        margin-bottom: 10px;
+    }
+    .func {
+        display: inline-block;
+        font-weight: bold;
+        color: green;
+    }
+    .arg {
+        padding-left: 8px;
+        font-weight: normal;
+        color: red;
+    }
+    .data-type {
+        padding-right: 8px;
+        font-weight: normal;
+        color: #999;
+    }
+    .desc {
+        margin: 12px 0 30px 0;
+        padding: 1px 8px;
+        background-color: #f9f9f9;
+    }
+    </style>
+</head>
+<body>
+
+    <div class="content">
+
+        <div class="header">
+            <h1>Touch Editor - Documentation</h1>
+            <ul>
+                <li><a href="https://github.com/snapshotist/toucheditor.js">Touch Editor on GitHub</a></li>
+                <li><a href="http://ryangillespie.com/toucheditor.js/">Touch Editor Home Page</a>
+            </ul>
+        </div>
+
+        <div class="body">
+
+            <h2>Hurry Up! Show me the code!</h2>
+            <p>If you want something to copy and paste and want to skip the explanation, jump to the <a href="#usage">Usage section</a>.</p>
+
+
+            <h2>License</h2>
+            <p>Touch Editor and DOM Writer are both released under the <a href="http://www.choosealicense.com">MIT License</a>.</p>
+
+
+            <h2>About Touch Editor</h2>
+
+            <p>Touch Editor was created to make applying styling and linking to HTML text input easier on touch screen devices. Essentially, this is a multi-line input textbox with some HTML tag support.</p>
+
+            <p>On the UI side, text selection on touch devices is cumbersome and clunky. The manual dexterity needed when dragging a text selection handle combined with the limited screen real estate of a typical smart phone or tablet makes the task of applying styling frustrating.</p>
+
+            <p>From the technical side, the text range object in Javascript has, in my experience, been problematic in cross-browser situations and more often than not, the HTML that is generated is bloated and inconsistent.</p>
+
+            <p>The solution to both of these was to give the user a contenteditable section of HTML with a touch mode for styles and links. When in touch mode, the text is enlarged and the spacing increased to allow easy selection of the words you want to apply or a unapply a tag. And because the code doesn't rely on any native browser tag insertions or removals, it's able to produce cleaner, smaller markup.</p>
+
+
+            <h2>Limitations</h2>
+
+            <h3>Tags</h3>
+            <p>Touch Editor is not meant to be as robust as TinyMCE or Aloha. It supports a small set of tags and is geared toward light text editing, not the full set of HTML elements.</p>
+
+            <p>Tags supported:
+            <br>A, STRONG, EM, STRIKE, U, BLOCKQUOTE</p>
+
+            <p>There is no support for class names or other attributes on a tag at this time. This means that if you'd like to use the EM tag for both italics and underlining to remain HTML5-compliant, you cannot do this.</p>
+
+            <h3>Word Selection</h3>
+            <p>Lastly, only "whole words" can by styled or linked, not individual letters. So if you wanted to italicize only, "freaking," in the word, "absofreakinglutely," Touch Editor doesn't support that.</p>
+
+            <h3>One Instance</h3>
+            <p>Only one Touch Editor may be instantiated on the page at this time.</p>
+
+
+            <h2>How It Works</h2>
+
+            <p>On a broad level, Touch Editor takes page markup that is wrapped in a contenteditable attribute DIV and when it enters touch mode, converts the markup to a JSON data structure. This data structure is then manipulated after words are selected or unselected and is finally run through a function to intelligently write out the HTML. The JSON data structure ends up being "dumb" and the HTML writer "smart."</p>
+
+            <h3>JSON Data Structure</h3>
+            <p>The JSON data structure representing the HTML groups all text with a common tag or set of tags in the order they appear in the HTML. For example:</p>
+
+            <pre>
+            &lt;p&gt;Hello &lt;strong&gt;World.&lt;/strong&gt; How are you?&lt;/p&gt;
+            </pre>
+
+
+            <p>This would result in 3 elements in the JSON.</p>
+
+            <ol>
+                <li>The word "Hello" with a P tag.</li>
+                <li>The word "World" with a P tag and a STRONG tag.</li>
+                <li>The words "How are you?" with a P tag.</li>
+            </ol>
+
+            <p>Now let's say during touch mode the user were to unselect the strong tag, which should remove the strong tag from the word "World." This would result in 1 element in the JSON.</p>
+
+            <ol>
+                <li>The words "Hello World. How are you?" with a P tag.</li>
+            </ol>
+
+            <a name="sample-json"></a>
+            <h3>Sample JSON Data Structure</h3>
+            <a name="element"></a>
+            <p>The following JSON represents one element, which is one or more "words" that share a common tag or set of tags, in the markup. This is the words "Foo Bar" that are wrapped in P, A, and STRONG tags. Each tag is represented in the array for the element with the last 2 items in the array being special identifiers.</p>
+            
+            <p>The second to last item in the array is the text string and the last item is an array of all tags/nodes. The "nodes" array is specifically for make writing out the finalized HTML faster and easier. The order of the tags in the "nodes" array is the same order in the parent array.</p>
+
+            <p>The first tag in this element, the P tag, has an extra property, "close." This signals to the HTML writer that any previous P tag should be closed before this one is opened. The reason this is done is the logic in the HTML writer attempts to minimize the number of tags used. Since a P tag is a specific block level element that affects the visual display of the text, it's important not to compact those tags into one. For example, if the HTML had 2 separate STRONG tags as siblings, the HTML writer would rewrite them as one.</p>
+
+            <pre class="brush: js;">
+                [
+                    [
+                        {
+                            "close": "1", 
+                            "tag": "p"
+                        }, 
+                        {
+                            "attrs": {
+                                "href": "http://www.github.com"
+                            }, 
+                            "tag": "a"
+                        }, 
+                        {
+                            "tag": "strong"
+                        }, 
+                        {
+                            "text": "Foo Bar"
+                        }, 
+                        {
+                            "nodes": [
+                                "p", 
+                                "a:http://www.github.com", 
+                                "strong"
+                            ]
+                        }
+                    ]
+                ]
+            </pre>
+
+            <h3>Touch Mode</h3>
+
+            <p>During touch mode, there are 2 sets of HTML. The interactive markup that is used strictly for making communicating the user's changes to JSON data structure easy and the finalized markup that is generated by Touch Editor from the JSON data structure.</p>
+
+            <p>The interactive markup begins with the markup on the page and then wraps a SPAN with a click handler for every single text node, or "word." A single space is used as a token separator for these SPANs. The index for each element, <a href="#element">as described above</a>, in the JSON DOM array is added as an ID attribute in a parent SPAN. These 2 pieces of information are used to alter the JSON data structure to add, remove, or update a tag.</p>
+            
+            <p>Touch Editor works with DOM Writer, which is responsible for managing the JSON data structure and the intelligent HTML output from the data structure. Once a user has made their selections in the user interface and hits the Apply button, DOM Writer's public methods are called against the word(s) and element(s) in the JSON data structure. Finally, the JSON data structure is run through the writeHTML method where Touch Editor receives it and inserts it back on to the page.</p>
+
+
+            <h2>Touch Editor Public Methods:</h2>
+            <ul>
+                <li>
+                    <div class="func">init(<span class="arg">dom_element</span>:<span class="data-type">string | jquery_object</span>, <span class="arg">options</span>:<span class="data-type">json</span>)</div>
+                    <div class="desc">
+                        <p><strong>Return:</strong> none</p>
+                        <p>Initalize the Touch Editor and place it at the location on the page where the specified dom_element argument exists.</p>
+                        <p>The dom_element is kept on the page, but its CSS properties are set to 0 opacity and 1 pixel height and width and it is made a child of the Touch Editor toolbar. The dom_element is kept on page in case you would like to use something like a form textarea tag as the dom_element. On submit of the form, you could call the Touch Editor's public get methods to set the value of the textarea.</p>
+                        <p>
+                            <strong>Options</strong><br>
+                            noToolbarFollow : boolean
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <div class="func">getJSON(<span class="arg">stringify</span>:<span class="data-type">boolean</span>)</div>
+                    <div class="desc">
+                        <p><strong>Return:</strong> JSON object | String</p>
+                        <p>Returns the <a href="#sample-json">JSON data structure</a> in the Touch Editor. The default return value is a JSON object. If the stringify argument is true, a string representation of the JSON object is returned.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="func">getHTML()</div>
+                    <div class="desc">
+                        <p><strong>Return:</strong> String</p>
+                        <p>Returns the HTML in the Touch Editor.</p>
+                    </div>
+                </li>
+            </ul>
+
+            <h2>DOM Writer Public Methods:</h2>
+            <ul>
+                <li>
+                    <div class="func">parseHTML(<span class="arg">dom_element</span>:<span class="data-type">jquery_object</span>)</div>
+                    <div class="desc">
+                        <p><strong>Return:</strong> JSON object</p>
+                        <p>Converts a JQuery object's inner HTML into a custom <a href="#sample-json">JSON data structure</a>.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="func">writeHTML()</div>
+                    <div class="desc">
+                        <p><strong>Return:</strong> String</p>
+                        <p>Converts the JSON data structure into clean, compacted HTML.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="func">addTag(<span class="arg">elementId</span>:<span class="data-type">integer</span>, <span class="arg">textNodeNumber</span>:<span class="data-type">integer</span>, <span class="arg">textNodeCount</span>:<span class="data-type">integer</span>, <span class="arg">tagName</span>:<span class="data-type">string</span>, <span class="arg">tagAttributes</span>:<span class="data-type">json object</span>)</div>
+                    <div class="desc">
+                        <p><strong>Return:</strong> Integer : Count of new nodes added to JSON data structure</p>
+                        <p>
+                            Add a tag to one or more words in a <a href="#element">single element</a> in the JSON data structure.
+                        </p>
+                        <p>
+                            The argument textNodeNumber is the index position of the first text node, from left to right, in the set of affected text nodes from the <em>END</em> of the length of total nodes, not zero-based.
+                        </p>
+                        <p>
+                            Example: ["This", "is", "a", "set", "of", "text", "nodes"]
+                            <br>
+                            To change "of text", the arguments would be: textNodeNumber = 3 and textNodeCount = 2
+                            <br><br>
+                            The reason the indexing is from the end of the array is because new nodes may have been added to the same elementId, which increases the total number of text nodes.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <div class="func">removeTag(<span class="arg">elementId</span>:<span class="data-type">integer</span>, <span class="arg">textNodeNumber</span>:<span class="data-type">integer</span>, <span class="arg">textNodeCount</span>:<span class="data-type">integer</span>, <span class="arg">tagName</span>:<span class="data-type">string</span>)</div>
+                    <div class="desc">
+                        <p><strong>Return:</strong> String</p>
+                        <p>Remove a tag from one or more words in a <a href="#element">single element</a> in the JSON data structure.</p>
+                        <p>
+                            The argument textNodeNumber is the index position of the first text node, from left to right, in the set of affected text nodes from the <em>END</em> of the length of total nodes, not zero-based.
+                        </p>
+                        <p>
+                            Example: ["This", "is", "a", "set", "of", "text", "nodes"]
+                            <br>
+                            To change "of text", the arguments would be: textNodeNumber = 3 and textNodeCount = 2
+                            <br><br>
+                            The reason the indexing is from the end of the array is because new nodes may have been added to the same elementId, which increases the total number of text nodes.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <div class="func">updateAttributes(<span class="arg">elementIds</span>:<span class="data-type">array</span>, <span class="arg">tagName</span>:<span class="data-type">string</span>, <span class="arg">tagAttributes</span>:<span class="data-type">json object</span>)</div>
+                    <div class="desc">
+                        <p><strong>Return:</strong> String</p>
+                        <p>Change the attributes of a tag for the given set of element IDs in the JSON data structure. No new elements are added or removed using this method.
+                        </p>
+                        <p>In Touch Editor, this method is only used to change the HREF attribute of the A tag.</p>
+                    </div>
+                </li>
+            </ul>
+
+
+
+
+            <a name="usage"></a>
+            <h2>Usage</h2>
+
+            <p>To instantiate Touch Editor:</p>
+
+            <pre class="brush: js;">
+                &lt;html>
+                &lt;body>
+
+                    <div id="touch-editor"></div>
+
+                    <link rel="stylesheet" href="touch_edit.css" type="text/css">
+
+                    <script type="text/javascript" src="jquery_1.10.1.js"></script>
+                    <script type="text/javascript" src="dom_writer.js"></script>
+                    <script type="text/javascript" src="touch_editor.js"></script>
+                    <script type="text/javascript">
+                        $(function() {
+                            TouchEditor.init("#touch-editor");
+                        });
+                    </script>
+                &lt;/body>
+                &lt;/html>
+            </pre>
+            <br><br>
+
+
+            <p>Make Touch Editor work in a form:</p>
+
+            <pre class="brush: js;">
+                &lt;html>
+                &lt;body>
+
+                    <form method="post" id="id-form" action=".">
+                        <textarea id="id-textarea"></textarea>
+
+                        <input type="submit" value="Save">
+                    </form>
+
+                    <link rel="stylesheet" href="touch_edit.css" type="text/css">
+
+                    <script type="text/javascript" src="jquery_1.10.1.js"></script>
+                    <script type="text/javascript" src="dom_writer.js"></script>
+                    <script type="text/javascript" src="touch_editor.js"></script>
+                    <script type="text/javascript">
+                        $(function() {
+                            var $form = $("id-form");
+                            var $textarea = $("#id-textarea");
+
+                            TouchEditor.init($textarea);
+
+                            $form.on("submit", function(e) {
+                                $textarea.val(TouchEditor.getHTML( $textarea ));
+                            });
+                        });
+                    </script>
+                &lt;/body>
+                &lt;/html>
+            </pre>
+
+
+            <h2>Known issues</h2>
+
+            <ul>
+                <li>When applying a style or link, one space at the end of the last word is included. This will make an underline or strike-through extend too long.</li>
+            </ul>
+
+        </div>
+        
+        <div class="footer">
+            
+        </div>
+        
+    </div>
+
+	<script type="text/javascript" src="scripts/shCore.js"></script>
+	<script type="text/javascript" src="scripts/shBrushJScript.js"></script>
+	<link type="text/css" rel="stylesheet" href="styles/shCoreDefault.css"/>
+	<script type="text/javascript">SyntaxHighlighter.all();</script>
+
+</body>
+</html>

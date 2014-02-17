@@ -58,6 +58,29 @@
     }
     strong { font-weight: bold; }
     em { font-style: italic; }
+
+
+    /* Demo Styles */
+    h1 {
+        font-size: 2em;
+    }
+    #page {
+        padding: 30px;
+        font-family: sans-serif;
+    }
+    label {
+        display: block;
+        margin-bottom: 10px;
+    }
+    input, textarea {
+        margin: 0 0 40px 0;
+        border: 3px solid #8e8e8e;
+        padding: 6px;
+        font-size: 1.5em;
+    }
+    button[type="submit"] {
+        margin-top: 20px;
+        padding: 8px 20px;
     }
     </style>
 </head>
@@ -66,175 +89,55 @@
 
     <div id="page">
 
-        <div id="header" class="grid grid-pad">
-
-        </div>
-
         <div id="content">
+            <h1 style="margin-bottom: 20px;">Touch Editor Demo</h1>
+            <br><br>
 
-            <div class="toolbar">
-                <button class="linkify-button" data-tag="a">Link</button>
-                <button class="linkify-button" data-tag="strong">Bold</button>
-                <button class="linkify-button" data-tag="em">Italic</button>
-                <button class="linkify-button" data-tag="strike">Strike</button>
-            </div>
+            <form method="post" action="." id="id-form">
 
-            <ul class="top-nav" style="display: none;">
-                <li class="list-urls">
-                    <button><span class="down-arrow"></span></button>
-                    <select></select>
-                </li>
-                <li class="url"><input type="text" placeholder="Type the link address"></li>
-                <li class="apply"><button>Apply</button></li>
-                <li class="close"><button>Close</button></li>
-            </ul>
-            
-            
-            <div class="linkify" contenteditable="true">
+                <label for="id-title">Post Title:</label>
+                <input id="id-title" type="text">
 
-                This won't work.
-                
-                <p>
-                    <a href="#">
-                        <strong>Foo</strong>
-                    </a>
-                    <strike>Bar</strike>
-                </p>
+                <label for="id-post">Post Text:</label>
+                <textarea id="id-post" name="post"></textarea>
 
-                <br>
-                <hr>
-                <br>
-
-                <a href="#">
-                    <p>
-                        <strong>Foo</strong>
-                    </p>
-                </a>
-                <strike>
-                    <p>Bar</p>
-                </strike>
-
-                <p>In June, the <b>Supreme Court prohibited</b> the patenting of genes that exist in nature. But the ban did not apply to DNA created in the laboratory, leaving the door open to additional patents in the field. That will encourage the industry to gather big bio-banks of people's genomes &mdash; <a href="http://www.google.com">the more, <strong>the <em>better.</em></strong></a></p>
-            
-                <div class="something complex">
-                    <span>Fooey</span>
-                    <ul class="list">
-                        <li><a href="http://www.google.com">One and</a></li>
-                        <li><b>Two and</b></li>
-                        <li>Three</li>
-                    </ul>
-
-                <p>In the wake of the F.D.A. warning, 23andMe has stopped providing data on health risks, and a class-action lawsuit alleges that the company's results are "meaningless." The company's supporters have launched a petition to protest the warning.</p>
-
-                <p>Until and unless the predictive science improves, experts advise consumers to take most of their results with a grain of salt.</p>
-                
-                <p>
-                    <a href="http://www.huckster.com"><strong><em>This That</em> And the Other Thing</strong> <em>Foo and Bar</em> The End</a>.
-                </p>
-            </div>
-            
-            <div class="result">
-                
-            </div>
-            
+                <button type="submit">Save</button>
+            </form>
         </div>
 
-        <div id="footer">
-
-        </div>
+        <br><br><br><br><br><br><br>
 
     </div>
-    
-    <style type="text/css">
-    
-    ul.list {
-        list-style: disc;
-        padding-left: 40px;
-    }
 
-    .top-nav .list-urls {
-        height: 21px;
-        width: 34px;
-    }
-    .top-nav button {
-        height: 28px;
-    }
-    .top-nav select {
-        position: absolute;
-        opacity: .1;
-        left: 0;
-        top: 0;
-        height: 35px;
-        width: 29px;
-        -webkit-appearance: none;
-    }
-    .top-nav .url input {
-        width: 98%;
-    }
-    .top-nav .apply {
-        width: 55px;
-    }
-    .top-nav .close {
-        width: 55px;
-    }
-    
-    .down-arrow {
-        display: block;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 10px solid #333;
-    }
-
-    .top-nav {
-        display: table;
-        position: fixed;
-        top: 0;
-        width: 100%;
-        height: 38px;
-        background-color: rgba(204, 204, 204, 0.65);
-    }
-    .top-nav li {
-        display: table-cell;
-        vertical-align: middle;
-    }
-    .top-nav:after {
-        content: " ";
-        display: table;
-        clear: both;
-    }
-    .click {
-        padding: 4px;
-        border: 1px solid transparent;
-        display: inline-block;
-        line-height: 34px;
-        padding: 4px;
-    }
-    .click.selected {
-        color: #fc0;
-        border: 1px solid #fc0;
-        background-color: #fafafa;
-    }
-    .linkify.enabled {
-        font-size: 30px;
-        color: #000;
-    }
-    
-    [class*='currentLinkify-'] {
-        text-decoration: underline;
-        color: #3c7ecf;
-    }
-    
-    </style>
+    <link rel="stylesheet" href="touch_edit.css" type="text/css">
 
     <script type="text/javascript" src="jquery_1.10.1.js"></script>
     <script type="text/javascript" src="dom_writer.js"></script>
     <script type="text/javascript" src="touch_editor.js"></script>
     <script type="text/javascript">
         $(function() {
-            TouchEditor.init();
-        });        
+            var $editorTextarea = $("#id-post");
+
+            TouchEditor.init($editorTextarea, {
+                "noToolbarFollow": false
+            });
+
+            $("#id-form").on("submit", function() {
+                alert("See the console for result.");
+
+                var jsonResult = TouchEditor.getJSON(true);
+                var htmlResult = TouchEditor.getHTML();
+
+                console.log( "JSON Result:" );
+                console.log( jsonResult );
+                console.log( "HTML Result:" );
+                console.log( htmlResult );
+
+                $editorTextarea.val(htmlResult);
+
+                return false;
+            });
+        });
     </script>
 
 </body>

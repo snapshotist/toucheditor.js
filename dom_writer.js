@@ -53,6 +53,8 @@ var DOMWriter = (function(){
         blockTag = "";
 
         buildJSON(domWrapper.get(0));
+        
+        return domJSON;
     }
 
 
@@ -79,7 +81,6 @@ var DOMWriter = (function(){
             }
 
             htmlNode = {
-                "tag": "text",
                 "text": nodeText
             };
             htmlTree.push(htmlNode);
@@ -158,9 +159,9 @@ var DOMWriter = (function(){
         }
     }
 
-    function updateAttributes(textNodeIds, tagName, tagAttributes) {
-        for (var i = -1; i++ < textNodeIds.length - 1;) {
-            var tags = domJSON[textNodeIds[i]];
+    function updateAttributes(elementIds, tagName, tagAttributes) {
+        for (var i = -1; i++ < elementIds.length - 1;) {
+            var tags = domJSON[elementIds[i]];
             for (var x = -1; x++ < tags.length - 1;) {
                 if (tags[x]["tag"] == tagName) {
                     tags[x]["attrs"] = tagAttributes;
@@ -177,14 +178,14 @@ var DOMWriter = (function(){
     // the length of total nodes, not zero-based.
     // Example: ["This", "is", "a", "set", "of", "text", "nodes"]
     //      To edit "of text", values would be: textNodeNumber = 3 and textNodeCount = 2
-    // This is because you can add a set of nodes to the same textNodeId,
+    // This is because you can add a set of nodes to the same elementId,
     // which changes the total number of nodes
 
-    function addTag(textNodeId, textNodeNumber, textNodeCount, tagName, tagAttributes) {
+    function addTag(elementId, textNodeNumber, textNodeCount, tagName, tagAttributes) {
 
         // are we replacing an anchor tag's href only?
         if (tagName == "a") {
-            var element = domJSON[textNodeId];
+            var element = domJSON[elementId];
             var nodes = element[element.length - 1]["nodes"];
 
             for (var i = -1; i++ < nodes.length - 1;) {
@@ -198,25 +199,25 @@ var DOMWriter = (function(){
             }
         }
 
-        var tagAction = function(textNodeId) {
-            addJSONTag(textNodeId, tagName, tagAttributes);
+        var tagAction = function(elementId) {
+            addJSONTag(elementId, tagName, tagAttributes);
         }
 
-        return splitNodeSet(textNodeId, textNodeNumber, textNodeCount, tagAction);
+        return splitNodeSet(elementId, textNodeNumber, textNodeCount, tagAction);
     }
 
-    function removeTag(textNodeId, textNodeNumber, textNodeCount, tagName) {
-        var tagAction = function(textNodeId) {
-            removeJSONTag(textNodeId, tagName);
+    function removeTag(elementId, textNodeNumber, textNodeCount, tagName) {
+        var tagAction = function(elementId) {
+            removeJSONTag(elementId, tagName);
         }
 
-        return splitNodeSet(textNodeId, textNodeNumber, textNodeCount, tagAction);
+        return splitNodeSet(elementId, textNodeNumber, textNodeCount, tagAction);
     }
 
-    function splitNodeSet(textNodeId, textNodeNumber, textNodeCount, tagAction) {
+    function splitNodeSet(elementId, textNodeNumber, textNodeCount, tagAction) {
 
         var nodesChanged;
-        var element = domJSON[textNodeId];
+        var element = domJSON[elementId];
         var textNodes = element[element.length - 2]["text"].split(" ");
 
         // don't include a beginning/ending single spaces as a text nodes
@@ -243,7 +244,16 @@ var DOMWriter = (function(){
             if (backText.length) {
                 elementCopy = $.extend(true, [], element);
                 elementCopy[elementCopy.length - 2]["text"] = backText.join(" ") + " ";
-                domJSON.splice(textNodeId + 1, 0, elementCopy);
+
+                // remove any possible force-close, block tags when splitting
+                var nodes = elementCopy[elementCopy.length -1]["nodes"];
+                for (var i = -1; i++ < nodes.length - 1;) {
+                    if ($.inArray(nodes[i], blockTags) != -1) {
+                        delete elementCopy[i]["close"];
+                    }
+                }
+
+                domJSON.splice(elementId + 1, 0, elementCopy);
 
                 nodesChanged = 2;
             } else {
@@ -252,14 +262,23 @@ var DOMWriter = (function(){
 
             elementCopy = $.extend(true, [], element);
             elementCopy[elementCopy.length - 2]["text"] = middleText.join(" ") + " ";
-            domJSON.splice(textNodeId + 1, 0, elementCopy);
 
-            tagAction(textNodeId + 1);
+            // remove any possible force-close, block tags when splitting
+            var nodes = elementCopy[elementCopy.length -1]["nodes"];
+            for (var i = -1; i++ < nodes.length - 1;) {
+                if ($.inArray(nodes[i], blockTags) != -1) {
+                    delete elementCopy[i]["close"];
+                }
+            }
+
+            domJSON.splice(elementId + 1, 0, elementCopy);
+
+            tagAction(elementId + 1);
 
         } else {
             // changing all text nodes in this element
             // add/remove the tag on the existing element
-            tagAction(textNodeId);
+            tagAction(elementId);
             nodesChanged = 0;
         }
 
@@ -267,7 +286,7 @@ var DOMWriter = (function(){
     }
 
 
-    function addJSONTag(textNodeId, tagName, attributes) {
+    function addJSONTag(elementId, tagName, attributes) {
         noChanges = false;
 
         var htmlNode = {
@@ -277,7 +296,7 @@ var DOMWriter = (function(){
             htmlNode["attrs"] = attributes;
         }
 
-        var element = domJSON[textNodeId];
+        var element = domJSON[elementId];
         element.unshift(htmlNode);
 
         if (tagName == "a") {
@@ -286,10 +305,10 @@ var DOMWriter = (function(){
         element[element.length - 1]["nodes"].unshift(tagName);
     }
 
-    function removeJSONTag(textNodeId, tagName) {
+    function removeJSONTag(elementId, tagName) {
         noChanges = false;
 
-        var element = domJSON[textNodeId];
+        var element = domJSON[elementId];
         var nodes = element[element.length - 1]["nodes"];
         var tagLength = tagName.length;
         var found = -1;
@@ -353,18 +372,18 @@ var DOMWriter = (function(){
 
         for (var x = -1; x++ < tuples.length - 1;) {
             if (tuples[x][0].substr(0, 2) == "a:") {
-                html += '<a href="' + currentElement[anchorIdx]['attrs']['href'] + '">\n';
+                html += '<a href="' + currentElement[anchorIdx]['attrs']['href'] + '">';
             } else {
-                html += "<" + tuples[x][0] + ">\n";
+                html += "<" + tuples[x][0] + ">";
             }
         }
 
         // now write out tags in "difference" that weren't outputted by the tuples above...
         for (var x = -1; x++ < uniqueTags.length - 1;) {
             if (uniqueTags[x].substr(0, 2) == "a:") {
-                html += '<a href="' + currentElement[anchorIdx]['attrs']['href'] + '">\n';
+                html += '<a href="' + currentElement[anchorIdx]['attrs']['href'] + '">';
             } else {
-                html += "<" + uniqueTags[x] + ">\n";
+                html += "<" + uniqueTags[x] + ">";
             }
         }
     }
@@ -409,9 +428,9 @@ var DOMWriter = (function(){
                     if ($.inArray(openTags[x], difference) != -1) {
 
                         if (openTags[x].substr(0, 2) == "a:") {
-                            html += "</a>\n";
+                            html += "</a>";
                         } else {
-                            html += "</" + openTags[x] + ">\n";
+                            html += "</" + openTags[x] + ">";
                         }
 
                         openTags.splice(x, 1);
@@ -464,9 +483,9 @@ var DOMWriter = (function(){
 
         for (var x = openTags.length; x-- > 0;) {
             if (openTags[x].substr(0, 2) == "a:") {
-                html += "</a>\n";
+                html += "</a>";
             } else {
-                html += "</" + openTags[x] + ">\n";
+                html += "</" + openTags[x] + ">";
             }
         }
 
@@ -479,8 +498,6 @@ var DOMWriter = (function(){
     return {
         parseHTML: parseHTML,
         writeHTML: writeHTML,
-        domJSON: domJSON,
-        html: html,
         addTag: addTag,
         removeTag: removeTag,
         updateAttributes: updateAttributes
