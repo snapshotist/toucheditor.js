@@ -43,7 +43,7 @@ $(function() {
     TouchEditor.init($textarea);
 
     $form.on("submit", function(e) {
-        $textarea.val(TouchEditor.getHTML( $textarea ));
+        $textarea.val(TouchEditor.getHTML());
     });
 });
 ```
