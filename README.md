@@ -1,32 +1,49 @@
 toucheditor.js
 ==============
 
-A rich HTML editor designed specifically to be easy to use on touch devices.
+A rich HTML editor designed specifically to be easy to use on mobile touch devices.
 
-**Project Status:** In development
+**Project Status:** Stable, Under Development
 
-This project is in the early stages. See touch_editor.html for a working demo. I don't recommend attempting to integrate this with any active projects yet, as there's a lot of code cleanup that's needed. Serious developers should feel free to mess with it.
+**Known Issues:**
++ When applying a style or link, one space at the end of the last word is included. This will make an underline or strike-through extend too long.
 
-
-**Upcoming changes:**
-+ Code cleanup
-+ Place hard-coded interface HTML on page into Javascript
-+ Improved documentation
-+ Improved CSS
+**Upcoming Changes:**
++ More code cleanup
 
 
-**Known bugs:**
-_None as of this version._
+Demo
+==============
+A demo is available in demo.html of this project and located on the Touch Editor home page [ http://ryangillespie.com/toucheditor.js/demo/ ].
 
 
+Documentation
+==============
+Documentation is available in the documentation/ folder of this project and located on the Touch Editor home page [ http://ryangillespie.com/toucheditor.js/docs/ ].
 
-Usage: touch_editor.js
+
+Usage: Initalize Touch Editor
 ==============
 
-Coming soon.
+```
+$(function() {
+    TouchEditor.init("#touch-editor");
+});
+```
 
 
-Usage: dom_writer.js
+Usage: Touch Editor in a form
 ==============
 
-Coming soon.
+```
+$(function() {
+    var $form = $("id-form");
+    var $textarea = $("#id-textarea");
+
+    TouchEditor.init($textarea);
+
+    $form.on("submit", function(e) {
+        $textarea.val(TouchEditor.getHTML( $textarea ));
+    });
+});
+```
