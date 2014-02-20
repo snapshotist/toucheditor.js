@@ -15,12 +15,43 @@
  *
 */
 var TouchEditor = (function(){
+    
+    var supportedTags = [
+        {
+            "tag": "a",
+            "classname": "link",
+            "label": "Link"
+        },
+        {
+            "tag": "strong",
+            "classname": "bold",
+            "label": "Bold"
+        },
+        {
+            "tag": "u",
+            "classname": "underline",
+            "label": "Underline"
+        },
+        {
+            "tag": "em",
+            "classname": "italic",
+            "label": "Italic"
+        },
+        {
+            "tag": "strike",
+            "classname": "strike",
+            "label": "Strike"
+        }
+    ];
 
-    // Change the HTML in editorToolsHTML below to remove specific buttons
-    var editorToolsHTML = '<div class="touch-edit-toolbar"><button class="touch-edit-button touch-edit-link" data-tag="a">Link</button><button class="touch-edit-button touch-edit-bold" data-tag="strong">Bold</button><button class="touch-edit-button touch-edit-underline" data-tag="u">Underline</button><button class="touch-edit-button touch-edit-italic" data-tag="em">Italic</button><button class="touch-edit-button touch-edit-strike" data-tag="strike">Strike</button><button class="touch-edit-button touch-edit-help" style="display: none;">Help</button></div>';
-    
+    var editorToolsHTML = '<div class="touch-edit-toolbar">';
+    for (var i = -1; i++ < supportedTags.length - 1;) {
+        editorToolsHTML += '<button class="touch-edit-button touch-edit-' + supportedTags[i]["classname"] + '" data-tag="' + supportedTags[i]["tag"] + '">' + supportedTags[i]["label"] + '</button>';
+    }
+    editorToolsHTML += '<button class="touch-edit-button touch-edit-help" style="display: none;">Help</button></div>';
+
     var editorApplyHTML = '<ul class="touch-edit-top-nav" style="display: none;"><li class="list-urls"><button><span class="down-arrow"></span></button><select></select></li><li class="url"><span class="touch-edit-label"></span><input type="text" autocorrect="off" autocapitalize="off" placeholder="Type the link address"></li><li class="apply"><button>Apply</button></li><li class="close"><button>Cancel</button></li></ul>';
-    
+
     var editorHTML = '<div class="touch-edit"></div>';
     var $text;
 

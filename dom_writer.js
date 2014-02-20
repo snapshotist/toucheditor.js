@@ -16,6 +16,9 @@
 */
 var DOMWriter = (function(){
 
+    // prevent xss
+    var validTags = ["a", "strong", "u", "em", "strike", "p", "br", "hr", "blockquote", "div"];
+
     var options;
 
     var domJSON = [];
@@ -66,7 +69,7 @@ var DOMWriter = (function(){
 
         // if this a text or br/hr node, it has no children or open/close tags
         if(node.nodeType == 3 || tagName == "br" || tagName == "hr") {
-            
+
             var nodeText = "";
             if (tagName == "br") {
                 nodeText = "<br>";
@@ -374,7 +377,8 @@ var DOMWriter = (function(){
             if (tuples[x][0].substr(0, 2) == "a:") {
                 html += '<a href="' + currentElement[anchorIdx]['attrs']['href'] + '">';
             } else {
-                html += "<" + tuples[x][0] + ">";
+                if ($.inArray(tuples[x][0], validTags) != -1)
+                    html += "<" + tuples[x][0] + ">";
             }
         }
 
@@ -383,7 +387,8 @@ var DOMWriter = (function(){
             if (uniqueTags[x].substr(0, 2) == "a:") {
                 html += '<a href="' + currentElement[anchorIdx]['attrs']['href'] + '">';
             } else {
-                html += "<" + uniqueTags[x] + ">";
+                if ($.inArray(uniqueTags[x], validTags) != -1)
+                    html += "<" + uniqueTags[x] + ">";
             }
         }
     }
@@ -430,7 +435,8 @@ var DOMWriter = (function(){
                         if (openTags[x].substr(0, 2) == "a:") {
                             html += "</a>";
                         } else {
-                            html += "</" + openTags[x] + ">";
+                            if ($.inArray(openTags[x], validTags) != -1)
+                                html += "</" + openTags[x] + ">";
                         }
 
                         openTags.splice(x, 1);
@@ -485,7 +491,8 @@ var DOMWriter = (function(){
             if (openTags[x].substr(0, 2) == "a:") {
                 html += "</a>";
             } else {
-                html += "</" + openTags[x] + ">";
+                if ($.inArray(openTags[x], validTags) != -1)
+                    html += "</" + openTags[x] + ">";
             }
         }
 
