@@ -109,7 +109,7 @@
             <p>There is no support for class names or other attributes on a tag at this time. This means that if you'd like to use the EM tag for both italics and underlining to remain HTML5-compliant, you cannot do this.</p>
 
             <h3>Word Selection</h3>
-            <p>Lastly, only "whole words" can by styled or linked, not individual letters. So if you wanted to italicize only, "freaking," in the word, "absofreakinglutely," Touch Editor doesn't support that.</p>
+            <p>Only "whole words" can by styled or linked, not individual letters. So if you wanted to italicize only, "freaking," in the word, "absofreakinglutely," Touch Editor doesn't support that.</p>
 
             <h3>One Instance</h3>
             <p>Only one Touch Editor may be instantiated on the page at this time.</p>
@@ -148,7 +148,7 @@
             
             <p>The second to last item in the array is the text string and the last item is an array of all tags/nodes. The "nodes" array is specifically for make writing out the finalized HTML faster and easier. The order of the tags in the "nodes" array is the same order in the parent array.</p>
 
-            <p>The first tag in this element, the P tag, has an extra property, "close." This signals to the HTML writer that any previous P tag should be closed before this one is opened. The reason this is done is the logic in the HTML writer attempts to minimize the number of tags used. Since a P tag is a specific block level element that affects the visual display of the text, it's important not to compact those tags into one. For example, if the HTML had 2 separate STRONG tags as siblings, the HTML writer would rewrite them as one.</p>
+            <p>The first tag in this element, the P tag, has an extra property, "close." This signals to the HTML writer that any previous P tag should be closed before this one is opened. The reason this is done is the logic in the HTML writer attempts to minimize the number of tags used. For example, if the HTML had 2 separate STRONG tags as siblings, the HTML writer would rewrite them as one. Since a P tag is a specific block level element that affects the visual display of the text, it's important not to compact those tags into one.</p>
 
             <pre class="brush: js;">
                 [
@@ -197,9 +197,16 @@
                         <p><strong>Return:</strong> none</p>
                         <p>Initalize the Touch Editor and place it at the location on the page where the specified dom_element argument exists.</p>
                         <p>The dom_element is kept on the page, but its CSS properties are set to 0 opacity and 1 pixel height and width and it is made a child of the Touch Editor toolbar. The dom_element is kept on page in case you would like to use something like a form textarea tag as the dom_element. On submit of the form, you could call the Touch Editor's public get methods to set the value of the textarea.</p>
+                        <p><strong>Options</strong></p>
                         <p>
-                            <strong>Options</strong><br>
-                            noToolbarFollow : boolean
+                            <strong>noToolbarFollow</strong> : boolean
+                            <br>
+                            When true, the toolbar icons along the right side of the Touch Editor textbox will not stay on screen as the user scrolls through a long textbox. Default is false.
+                        </p>
+                        <p>
+                            <strong>initJSON</strong> : string
+                            <br>
+                            A string representing the <a href="#sample-json">JSON data structure</a>. Use this to pre-populate the Touch Editor instance. The HTML output from this initialization is sanitized using a whitelist of approved tags to prevent cross-site scripting attacks. If you want to pre-poplate the Touch Editor textbox with HTML and not the JSON, make sure it is being sanitized on the back-end.
                         </p>
                     </div>
                 </li>
