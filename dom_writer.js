@@ -501,13 +501,18 @@ var DOMWriter = (function(){
         return html;
     }
 
+    function setDomJSON(json) {
+        domJSON = JSON.parse(json);
+    }
+
 
     return {
         parseHTML: parseHTML,
         writeHTML: writeHTML,
         addTag: addTag,
         removeTag: removeTag,
-        updateAttributes: updateAttributes
+        updateAttributes: updateAttributes,
+        setDomJSON: setDomJSON
     };
 
 })();

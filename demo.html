@@ -119,7 +119,8 @@
             var $editorTextarea = $("#id-post");
 
             TouchEditor.init($editorTextarea, {
-                "noToolbarFollow": false
+                'noToolbarFollow': false,
+                'initJSON': '[[{"tag":"p","close":"1"},{"text":"This is a test with initial "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"strike"},{"text":"data "},{"nodes":["p","strike"]}],[{"tag":"p"},{"text":"json. "},{"nodes":["p"]}],[{"tag":"p","close":"1"},{"text":"<br>"},{"nodes":["p"]}],[{"tag":"p","close":"1"},{"text":"It\'s safer to store the "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"a","attrs":{"href":"http://www.json.org"}},{"text":"JSON data structure "},{"nodes":["p","a:http://www.json.org"]}],[{"tag":"p"},{"text":"than the "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"u"},{"text":"HTML "},{"nodes":["p","u"]}],[{"tag":"p"},{"text":"because "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"strong"},{"text":"DOMWriter.writeHTML() "},{"nodes":["p","strong"]}],[{"tag":"p"},{"text":"sanitizes any potentially "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"em"},{"text":"dangerous "},{"nodes":["p","em"]}],[{"tag":"p"},{"tag":"u"},{"text":"HTML. "},{"nodes":["p","u"]}],[{"tag":"p","close":"1"},{"tag":"u"},{"text":"<br>"},{"nodes":["p","u"]}],[{"tag":"p","close":"1"},{"text":"However, for performance considerations, you should probably save both. When only the finalized HTML is to be shown, pull the HTML. When the HTML is to be edited, pull the JSON data structure."},{"nodes":["p"]}]]'
             });
 
             $("#id-form").on("submit", function() {

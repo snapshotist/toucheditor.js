@@ -77,6 +77,12 @@ var TouchEditor = (function(){
             options = {};
         }
 
+        if (options["initJSON"]) {
+            DOMWriter.setDomJSON(options["initJSON"]);
+            var initHTML = DOMWriter.writeHTML();
+            $text.html( initHTML );
+        }
+
         $text.attr("contenteditable", "true");
         editorToolsHTML = $(editorToolsHTML).insertBefore($text);
 
