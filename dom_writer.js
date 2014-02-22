@@ -331,6 +331,20 @@ var DOMWriter = (function(){
 
     }
 
+    function printTag(tag) {
+        if (tag.substr(0, 2) == "a:") {
+            var href = currentElement[anchorIdx]['attrs']['href'];
+            if (href.substring(0, 11) == "javascript:") {
+                console.warn("Javascript removed from link target.");
+                href = "#";
+            }
+            html += '<a href="' + href + '">';
+        } else {
+            if ($.inArray(tag, validTags) != -1)
+                html += "<" + tag + ">";
+        }
+    }
+
     function commonTraversal(elements, elementId) {
 
         // Loop around all of the following nodes
@@ -374,22 +388,12 @@ var DOMWriter = (function(){
         });
 
         for (var x = -1; x++ < tuples.length - 1;) {
-            if (tuples[x][0].substr(0, 2) == "a:") {
-                html += '<a href="' + currentElement[anchorIdx]['attrs']['href'] + '">';
-            } else {
-                if ($.inArray(tuples[x][0], validTags) != -1)
-                    html += "<" + tuples[x][0] + ">";
-            }
+            printTag(tuples[x][0]);
         }
 
         // now write out tags in "difference" that weren't outputted by the tuples above...
         for (var x = -1; x++ < uniqueTags.length - 1;) {
-            if (uniqueTags[x].substr(0, 2) == "a:") {
-                html += '<a href="' + currentElement[anchorIdx]['attrs']['href'] + '">';
-            } else {
-                if ($.inArray(uniqueTags[x], validTags) != -1)
-                    html += "<" + uniqueTags[x] + ">";
-            }
+            printTag(uniqueTags[x]);
         }
     }
 
