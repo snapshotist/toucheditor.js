@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Title</title>
+    <title>Touch Editor JS Documentation</title>
     <style type="text/css">
     body {
         font-family: sans-serif;
@@ -70,7 +70,7 @@
 
         <div class="header">
             <img class="logo" src="touch-edit.png">
-            <h1>Touch Editor - Documentation</h1>
+            <h1>Touch Editor JS - Documentation</h1>
             <ul>
                 <li><a href="https://github.com/snapshotist/toucheditor.js">Touch Editor on GitHub</a></li>
                 <li><a href="http://ryangillespie.com/toucheditor.js/">Touch Editor Home Page</a>
@@ -290,8 +290,6 @@
             </ul>
 
 
-
-
             <a name="usage"></a>
             <h2>Usage</h2>
 
@@ -344,13 +342,24 @@
                             TouchEditor.init($textarea);
 
                             $form.on("submit", function(e) {
-                                $textarea.val(TouchEditor.getHTML());
+                                $textarea.val(TouchEditor.getJSON());
                             });
                         });
                     </script>
                 &lt;/body>
                 &lt;/html>
             </pre>
+
+
+            <h2>Storing HTML Data</h2>
+
+            <p>It's not recommended that you store the HTML that lives in the contenteditable DIV to your database. While Touch Editor sanitizes the HTML when it's converted from JSON to HTML, the HTML on the page is always under user control and cannot be trusted.</p>
+            <p>You have three options for displaying the user-created HTML.</p>
+            <ul>
+                <li>Store the HTML server-side: You can take the HTML that comes from the form and sanitize it on the back-end to strip out any possible cross-site scripting tags.</li>
+                <li>Store the HTML server-side: You can run DOMWriter's writeHTML method on the server-side using Node.js against the JSON data structure that comes in through the form.</li>
+                <li>Write the HTML client-side: This is the slowest performer, but you could store only the JSON data structure from the form and use DOMWriter's setDomJSON and writeHTML methods to display the HTML.</li>
+            </ul>
 
 
             <h2>Known issues</h2>
