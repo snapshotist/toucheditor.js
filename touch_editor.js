@@ -12,6 +12,7 @@
  *
  * Options:
  *      noToolbarFollow : boolean
+ *      initJSON : string
  *
 */
 var TouchEditor = (function(){

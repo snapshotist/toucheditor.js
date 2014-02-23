@@ -43,7 +43,19 @@ $(function() {
     TouchEditor.init($textarea);
 
     $form.on("submit", function(e) {
-        $textarea.val(TouchEditor.getHTML());
+        $textarea.val(TouchEditor.getJSON());
+    });
+});
+```
+
+
+Usage: Touch Editor with pre-populated HTML
+==============
+
+```
+$(function() {
+    TouchEditor.init("#touch-editor", {
+        'initJSON': '[[{"tag":"p","close":"1"},{"text":"Demo."},{"nodes":["p"]}]]'
     });
 });
 ```
