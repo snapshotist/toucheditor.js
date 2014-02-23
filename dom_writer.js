@@ -79,6 +79,10 @@ var DOMWriter = (function(){
                 // if this node is all whitespace, don't report it
                 if(node.data.replace(/\s/g,'') == '') { return; }
 
+                node.data = node.data
+                    .replace(/&/g, "&amp;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/</g, "&lt;");
                 nodeText = node.data;
                 canWrap = true;
             }

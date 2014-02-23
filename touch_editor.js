@@ -448,6 +448,9 @@ var TouchEditor = (function(){
                         child.data = child.data.replace("\n", "");
                         var spaceChar = child.data.length == 1 && child.data == " ";
                         if (!spaceChar) {
+                            child.data = child.data
+                                .replace(/>/g, "&gt;")
+                                .replace(/</g, "&lt;");
                             wrapNodes.push(child);
                         }
                     }
