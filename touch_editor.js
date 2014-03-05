@@ -221,7 +221,8 @@ var TouchEditor = (function(){
 
                 var affectedNodes = findNodes(tagMode.name, tagMode.attributes);
 
-                if (!updatedLinks && affectedNodes == 0) {
+				var nodesTouched = $text.find(".selected,.removeNode").length;
+                if (!updatedLinks && nodesTouched == 0) {
                     var msg = "You must tap on a word to apply ";
                     if (tagMode.name == "a") {
                         msg += "the link.";
@@ -251,19 +252,33 @@ var TouchEditor = (function(){
                     .css("opacity", 1)
                     .removeAttr("disabled");
 
-                $(".list-urls")
-                    .find("*").show()
-                    .on("change", function() {
-                        var hrefLookup = $(this).find("option:selected").val();
-                        $(".url input").val(hrefLookup);
-                        activateLinks(hrefLookup);
-                        selectedHref = hrefLookup;
-                    });
+				if (!hasAddresses) {
+					$(".list-urls").find("select").hide();
+					$(".list-urls")
+						.find("button")
+							.show()
+							.on("click", function(e) {
+								alert("This menu will contain addresses you have previously applied. When you choose an address, all text linked to that address will be highlighted.");
+							});
+				} else {
+
+	                $(".list-urls")
+	                    .children().show()
+	                    .on("change", function() {
+	                        var hrefLookup = $(this).find("option:selected").val();
+	                        $(".url input").val(hrefLookup);
+	                        activateLinks(hrefLookup);
+	                        selectedHref = hrefLookup;
+	                    });
+				}
 
             } else {
                 $(".list-urls")
-                    .off("change")
-                    .find("*").hide();
+                    .children().hide()
+                    .off("change");
+
+				$(".list-urls").find("button").off("click");
+
                 $(".url").find("input")
                     .css("opacity", 0)
                     .attr("disabled", "disabled");
@@ -297,13 +312,13 @@ var TouchEditor = (function(){
 
                     var nodesChanged;
                     if (thisNode.hasClass("addNode")) {
-                        nodesChanged = DOMWriter.addTag(jsonNodeId, textNodeNumber, groupedNodes.length, tagName, tagAttributes);
+						nodesChanged = DOMWriter.addTag(jsonNodeId, textNodeNumber, groupedNodes.length, tagName, tagAttributes);
                     } else if (thisNode.hasClass("removeNode")) {
                         nodesChanged = DOMWriter.removeTag(jsonNodeId, textNodeNumber, groupedNodes.length, tagName);
                     }
 
-                    // 2 new nodes might be added by DOMWriter, so index for any subsequent text nodes
-                    // would be increased by 2
+                    // new nodes might be added by DOMWriter, so index for any subsequent text nodes
+                    // would be increased
                     jsonNodeIdShift += nodesChanged;
 
                     groupedNodes = [nextNode];
@@ -362,7 +377,6 @@ var TouchEditor = (function(){
                 "idNodes": true
             });
 
-            enableNav();
             wrapTextNodes($text.find('*'));
 
             // highlight text nodes with this chosen tag
@@ -372,6 +386,7 @@ var TouchEditor = (function(){
                 $(".touch-edit-label").text("Style: " + tagMode["label"]);
 
             } else {
+				$(".touch-edit-label").text("");
                 $(".list-urls").find("select").html('<option value="">Add a New Address</option>');
 
                 var uniqueHref = [];
@@ -394,9 +409,12 @@ var TouchEditor = (function(){
                         e.preventDefault();
                     });
 
+				hasAddresses = false;
+				if (optionHtml.length) hasAddresses = true;
                 $(".list-urls").find("select").append(optionHtml);
             }
 
+            enableNav();
             $text.addClass("enabled");
         }
 
@@ -412,9 +430,9 @@ var TouchEditor = (function(){
 
                 var msg;
                 if (tagMode["name"] == "a") {
-                    msg = "Touch a word to apply the link. Touch again to remove.\nType the link address in the text box above or choose from the drop-down button.";
+                    msg = "Touch a word to apply the link.\nTouch again to remove.\nType the link address in the text box above or choose from the drop-down button.";
                 } else {
-                    msg = "Touch a word to apply the style. Touch again to remove.";
+                    msg = "Touch a word to apply the style.\nTouch again to remove.";
                 }
 
                 msg += "\n\nClick Apply at the top right when done.";
@@ -522,7 +540,8 @@ var TouchEditor = (function(){
             $nodes.contents().unwrap();
             $nodes.remove();
             $text.removeClass("enabled");
-            $(".list-urls").find("*").off("change");
+            $(".list-urls").children().off("change");
+			$(".list-urls").find("button").off("click");
 
             disableNav();
         }

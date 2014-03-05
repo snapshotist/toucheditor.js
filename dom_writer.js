@@ -181,6 +181,15 @@ var DOMWriter = (function(){
         }
     }
 
+	function getArrayTextNodes(element) {
+		var textNodes = element[element.length - 2]["text"].split(" ");
+        // don't include a beginning/ending single spaces as a text nodes
+        if (textNodes[0].length == 0) textNodes.shift();
+        if (textNodes[textNodes.length - 1].length == 0) textNodes.pop();
+		
+		return textNodes;	
+	}
+
     // textNodeNumber is the index position of the first text node in the set of affected from the END of
     // the length of total nodes, not zero-based.
     // Example: ["This", "is", "a", "set", "of", "text", "nodes"]
@@ -189,23 +198,6 @@ var DOMWriter = (function(){
     // which changes the total number of nodes
 
     function addTag(elementId, textNodeNumber, textNodeCount, tagName, tagAttributes) {
-
-        // are we replacing an anchor tag's href only?
-        if (tagName == "a") {
-            var element = domJSON[elementId];
-            var nodes = element[element.length - 1]["nodes"];
-
-            for (var i = -1; i++ < nodes.length - 1;) {
-                if ( nodes[i].substr(0, 2) == "a:" ) {
-                    nodes[i] = "a:" + tagAttributes["href"];
-                    element[i]["attrs"]["href"] = tagAttributes["href"];
-
-                    return 0; // no nodes added
-                    break;
-                }
-            }
-        }
-
         var tagAction = function(elementId) {
             addJSONTag(elementId, tagName, tagAttributes);
         }
@@ -225,11 +217,7 @@ var DOMWriter = (function(){
 
         var nodesChanged;
         var element = domJSON[elementId];
-        var textNodes = element[element.length - 2]["text"].split(" ");
-
-        // don't include a beginning/ending single spaces as a text nodes
-        if (textNodes[0].length == 0) textNodes.shift();
-        if (textNodes[textNodes.length - 1].length == 0) textNodes.pop();
+		var textNodes = getArrayTextNodes(element);
 
         // flip index position from end to index position from start of nodes
         textNodeNumber = textNodes.length - textNodeNumber;
@@ -292,6 +280,19 @@ var DOMWriter = (function(){
         return nodesChanged;
     }
 
+	function tagInArray(tagName, nodes) {
+        var tagLength = tagName.length;
+        var found = -1;
+
+        for (var i = -1; i++ < nodes.length - 1;) {
+            if (nodes[i].substr(0, tagLength) == tagName ) {
+                found = i;
+                break;
+            }
+        }
+		
+		return found;
+	}
 
     function addJSONTag(elementId, tagName, attributes) {
         noChanges = false;
@@ -304,12 +305,28 @@ var DOMWriter = (function(){
         }
 
         var element = domJSON[elementId];
+        var nodes = element[element.length - 1]["nodes"];
+
+        // are we replacing an existing anchor tag's href only?
+        if (tagName == "a") {
+			var foundIdx = tagInArray("a", nodes);
+
+			if (foundIdx != -1) {
+				element[foundIdx]["attrs"]["href"] = attributes["href"];
+				nodes[foundIdx] = "a:" + attributes["href"];
+
+				return 0; // no nodes added
+			}
+		}
+
         element.unshift(htmlNode);
 
         if (tagName == "a") {
             tagName = "a:" + htmlNode["attrs"]["href"];
         }
         element[element.length - 1]["nodes"].unshift(tagName);
+		
+		return 1; // nodes added
     }
 
     function removeJSONTag(elementId, tagName) {
@@ -317,20 +334,12 @@ var DOMWriter = (function(){
 
         var element = domJSON[elementId];
         var nodes = element[element.length - 1]["nodes"];
-        var tagLength = tagName.length;
-        var found = -1;
+		var foundIdx = tagInArray(tagName, nodes);
 
-        for (var i = -1; i++ < nodes.length -1;) {
-            if (nodes[i].substr(0, tagLength) == tagName ) {
-                found = i;
-                break;
-            }
-        }
+        if (foundIdx != -1) {
+            nodes.splice(foundIdx, 1);
 
-        if (found != -1) {
-            nodes.splice(found, 1);
-
-            element.splice(found, 1);
+            element.splice(foundIdx, 1);
         }
 
     }
