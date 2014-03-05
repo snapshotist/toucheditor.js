@@ -14,7 +14,10 @@ A rich HTML editor designed specifically to be easy to use on mobile touch devic
 
 Demo
 ==============
-A demo is available in demo.html of this project and located on the Touch Editor home page [ http://ryangillespie.com/toucheditor.js/demo/ ].
+
++ Touch Editor: A demo is available in demo.html of this project and located on the Touch Editor home page [ http://ryangillespie.com/toucheditor.js/demo/ ].
+
++ Touch Editor Output: A demo is available in demo\_output.html of this project and located on the Touch Editor home page [ http://ryangillespie.com/toucheditor.js/demo\_output/ ].
 
 
 Documentation
@@ -57,5 +60,19 @@ $(function() {
     TouchEditor.init("#touch-editor", {
         'initJSON': '[[{"tag":"p","close":"1"},{"text":"Demo."},{"nodes":["p"]}]]'
     });
+});
+```
+
+
+Usage: Touch Editor's JSON data as HTML on a page
+==============
+
+```
+$(function() {
+      var initJSON = '[[{"tag":"strong"},{"tag":"p","close":"1"},{"text":"Hello World"},{"nodes":["strong","p"]}]]';
+
+			DOMWriter.setDomJSON(initJSON);
+			var initHTML = DOMWriter.writeHTML();
+			$("#id-html").html(initHTML);
 });
 ```
