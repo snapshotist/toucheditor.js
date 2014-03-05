@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Touch Editor JS Demo</title>
+    <style type="text/css">
+    /**
+     * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)
+     * http://cssreset.com
+     */
+    html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, embed, 
+    figure, figcaption, footer, header, hgroup, 
+    menu, nav, output, ruby, section, summary,
+    time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+    }
+    /* HTML5 display-role reset for older browsers */
+    article, aside, details, figcaption, figure, 
+    footer, header, hgroup, menu, nav, section {
+    display: block;
+    }
+    body {
+    line-height: 1;
+    }
+    ol, ul {
+    list-style: none;
+    }
+    blockquote, q {
+    quotes: none;
+    }
+    blockquote:before, blockquote:after,
+    q:before, q:after {
+    content: '';
+    content: none;
+    }
+    table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    }
+    *, *:before, *:after {
+        -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+    }
+    strong { font-weight: bold; }
+    em { font-style: italic; }
+
+
+    /* Demo Styles */
+    h1 {
+        font-size: 2em;
+    }
+    #page {
+        padding: 30px;
+        font-family: sans-serif;
+    }
+    </style>
+</head>
+
+<body>
+
+    <div id="page">
+
+        <div id="content">
+            <h1 style="margin-bottom: 20px;">Touch Editor Demo - Displaying saved JSON data structure</h1>
+            <br><br>
+
+			<div id="id-post"></div>
+
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="jquery_1.10.1.js"></script>
+    <script type="text/javascript" src="dom_writer.js"></script>
+    <script type="text/javascript">
+        $(function() {
+			var initJSON = '[[{"tag":"p","close":"1"},{"text":"This is a test with initial "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"strike"},{"text":"data "},{"nodes":["p","strike"]}],[{"tag":"p"},{"text":"json. "},{"nodes":["p"]}],[{"tag":"p","close":"1"},{"text":"<br>"},{"nodes":["p"]}],[{"tag":"p","close":"1"},{"text":"It\'s safer to store the "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"a","attrs":{"href":"http://www.json.org"}},{"text":"JSON data structure "},{"nodes":["p","a:http://www.json.org"]}],[{"tag":"p"},{"text":"than the "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"u"},{"text":"HTML "},{"nodes":["p","u"]}],[{"tag":"p"},{"text":"because "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"strong"},{"text":"DOMWriter.writeHTML() "},{"nodes":["p","strong"]}],[{"tag":"p"},{"text":"sanitizes any potentially "},{"nodes":["p"]}],[{"tag":"p"},{"tag":"em"},{"text":"dangerous "},{"nodes":["p","em"]}],[{"tag":"p"},{"tag":"u"},{"text":"HTML. "},{"nodes":["p","u"]}],[{"tag":"p","close":"1"},{"tag":"u"},{"text":"<br>"},{"nodes":["p","u"]}],[{"tag":"p","close":"1"},{"text":"However, for performance considerations, you should probably save both. When only the finalized HTML is to be shown, pull the HTML. When the HTML is to be edited, pull the JSON data structure."},{"nodes":["p"]}]]';
+			
+			DOMWriter.setDomJSON(initJSON);
+			var initHTML = DOMWriter.writeHTML();
+			$("#id-post").html(initHTML);
+        });
+    </script>
+
+</body>
+</html>
