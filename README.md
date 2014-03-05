@@ -17,7 +17,7 @@ Demo
 
 + Touch Editor: A demo is available in demo.html of this project and located on the Touch Editor home page [ http://ryangillespie.com/toucheditor.js/demo/ ].
 
-+ Touch Editor Output: A demo is available in demo\_output.html of this project and located on the Touch Editor home page [ http://ryangillespie.com/toucheditor.js/demo\_output/ ].
++ Touch Editor Output: A demo is available in demo\_output.html of this project and located on the Touch Editor home page [ http://ryangillespie.com/toucheditor.js/demo_output/ ].
 
 
 Documentation
